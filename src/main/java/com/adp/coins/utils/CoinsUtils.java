@@ -9,10 +9,13 @@ import org.apache.commons.lang3.tuple.ImmutablePair;
 import com.adp.coins.constants.CoinsType;
 import com.adp.coins.response.CoinsResponse;
 
+import lombok.extern.slf4j.Slf4j;
+
 
 /**
  * The Utility Class CoinsUtils to handle coins functionalities
  */
+@Slf4j
 public final class CoinsUtils {
 
 	/**
@@ -39,6 +42,7 @@ public final class CoinsUtils {
 			resp.setTenCent(coinsMap.get(CoinsType.TENCENT.getName()).get());
 			resp.setQuarterCent(coinsMap.get(CoinsType.QUARTERCENT.getName()).get());
 		}
+		log.info("Coins Response has been retrieved successfully");
 		return resp;
 	}
 
@@ -67,6 +71,7 @@ public final class CoinsUtils {
 				break;
 			}
 		}
+		log.info("Coins Response has been retrieved successfully for coinType : {}", coinType.getName());
 		return resp;
 	}
 	
@@ -83,13 +88,14 @@ public final class CoinsUtils {
 	public static ImmutablePair<Long, BigDecimal> getCentCount(Map<String, AtomicLong> coinsMap, BigDecimal currencyDecimal, CoinsType coinType) {
 		Long centCount = 0L;
 		AtomicLong centAtomicLong = coinsMap.get(coinType.getName());
+		log.info("CoinType: {} and its cent: {}", coinType.getName(), centAtomicLong);
 		while (centAtomicLong.get() > 0 && currencyDecimal.doubleValue() > 0) {
 			centAtomicLong.decrementAndGet();
 			currencyDecimal = currencyDecimal.subtract(new BigDecimal(coinType.getCent()));
 			centCount++;
 		}
 		ImmutablePair<Long, BigDecimal> pair = new ImmutablePair<>(centCount, currencyDecimal);
-
+		log.info("Cent Count has been calculated successfully");
 		return pair;
 	}
 

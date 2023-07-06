@@ -18,6 +18,7 @@ import com.adp.coins.service.CoinsService;
 import com.adp.coins.utils.CoinsUtils;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 
 /**
@@ -31,6 +32,7 @@ import lombok.RequiredArgsConstructor;
  * @param coinsConfig the coins config
  */
 @RequiredArgsConstructor
+@Slf4j
 public class CoinsServiceImpl implements CoinsService {
 
 	/** The coins config. */
@@ -45,6 +47,7 @@ public class CoinsServiceImpl implements CoinsService {
 	public CoinsResponse getAllCoins() {
 		Map<String, AtomicLong> coinsMap = coinsConfig.getCoins();
 		CoinsResponse response = CoinsUtils.mapToResponse(coinsMap);
+		log.info("All coins details has been retrieved successfully");
 		return response;
 	}
 
@@ -58,6 +61,7 @@ public class CoinsServiceImpl implements CoinsService {
 	public CoinsResponse getCoin(CoinsType coinType) {
 		Map<String, AtomicLong> coinsMap = coinsConfig.getCoins();
 		CoinsResponse response = CoinsUtils.mapToResponse(coinsMap, coinType);
+		log.info("Get coin details has been retrieved successfully");
 		return response;
 	}
 
@@ -71,7 +75,9 @@ public class CoinsServiceImpl implements CoinsService {
 	public CoinsResponse getCoinChange(CurrencyType currencyType) {
 		CoinsResponse resp = new CoinsResponse();
 		BigDecimal currencyDecimal = new BigDecimal(currencyType.getCurrency());
-		if (currencyDecimal.doubleValue() > coinsConfig.getTotal()) {
+		Double total = coinsConfig.getTotal();
+		log.info("Available coins: {}", total);
+		if (currencyDecimal.doubleValue() > total) {
 			throw new CoinsException(CoinsConstants.ERR_MSG_1);
 		}
 
@@ -79,18 +85,22 @@ public class CoinsServiceImpl implements CoinsService {
 				CoinsType.QUARTERCENT);
 		resp.setQuarterCent(quarterCentCount.getLeft());
 		currencyDecimal = quarterCentCount.getRight();
+		log.info("Currency changed to quarter cent coins successfully");
 
 		ImmutablePair<Long, BigDecimal> tenCentCount = CoinsUtils.getCentCount(coinsConfig.getCoins(), currencyDecimal, CoinsType.TENCENT);
 		resp.setTenCent(tenCentCount.getLeft());
 		currencyDecimal = tenCentCount.getRight();
+		log.info("Currency changed to ten cent coins successfully");
 
 		ImmutablePair<Long, BigDecimal> fiveCentCount = CoinsUtils.getCentCount(coinsConfig.getCoins(), currencyDecimal, CoinsType.FIVECENT);
 		resp.setFiveCent(fiveCentCount.getLeft());
 		currencyDecimal = fiveCentCount.getRight();
+		log.info("Currency changed to five cent coins successfully");
 
 		ImmutablePair<Long, BigDecimal> oneCentCount = CoinsUtils.getCentCount(coinsConfig.getCoins(), currencyDecimal, CoinsType.ONECENT);
 		resp.setOneCent(oneCentCount.getLeft());
 		currencyDecimal = oneCentCount.getRight();
+		log.info("Currency changed to one cent coins successfully");
 
 		return resp;
 	}
