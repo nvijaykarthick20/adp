@@ -242,8 +242,47 @@ public class CoinsControllerTest {
 		response.setOneCent(0L);
 		Mockito.when(service.getCoinChange(currencyType)).thenReturn(response);
 
-		mockMvc.perform(MockMvcRequestBuilders.post("/{currency}", currency.getCurrency())).andDo(print()).andExpect(status().isOk())
-				.andExpect(MockMvcResultMatchers.jsonPath("$.quarterCent").value(20))
+		mockMvc.perform(MockMvcRequestBuilders.post("/{currency}", currency.getCurrency())).andDo(print())
+				.andExpect(status().isOk()).andExpect(MockMvcResultMatchers.jsonPath("$.quarterCent").value(20))
+				.andExpect(MockMvcResultMatchers.jsonPath("$.tenCent").value(0))
+				.andExpect(MockMvcResultMatchers.jsonPath("$.fiveCent").value(0))
+				.andExpect(MockMvcResultMatchers.jsonPath("$.oneCent").value(0));
+	}
+
+	/**
+	 * Gets the all coin change if invalid type then throw exception.
+	 *
+	 * @return the all coin change if invalid type then throw exception
+	 * @throws Exception the exception
+	 */
+	@Test
+	void getAllCoinChange_if_InvalidType_Then_Throw_Exception() throws Exception {
+
+		mockMvc.perform(MockMvcRequestBuilders.post("/{currency}/mix", "test")).andDo(print())
+				.andExpect(status().is4xxClientError())
+				.andExpect(MockMvcResultMatchers.jsonPath("$.statusCode").value(400))
+				.andExpect(MockMvcResultMatchers.jsonPath("$.errMsg").value("Input should be number"));
+	}
+
+	/**
+	 * Gets the all coin change if valid type then expect success response.
+	 *
+	 * @return the all coin change if valid type then expect success response
+	 * @throws Exception the exception
+	 */
+	@Test
+	void getAllCoinChange_if_validType_Then_expect_success_response() throws Exception {
+		CurrencyType currency = CurrencyType.FIVE;
+		CurrencyType currencyType = CurrencyType.getByCurrency(currency.getCurrency());
+		CoinsResponse response = new CoinsResponse();
+		response.setQuarterCent(20L);
+		response.setTenCent(0L);
+		response.setFiveCent(0L);
+		response.setOneCent(0L);
+		Mockito.when(service.getAllCoinChange(currencyType)).thenReturn(response);
+
+		mockMvc.perform(MockMvcRequestBuilders.post("/{currency}/mix", currency.getCurrency())).andDo(print())
+				.andExpect(status().isOk()).andExpect(MockMvcResultMatchers.jsonPath("$.quarterCent").value(20))
 				.andExpect(MockMvcResultMatchers.jsonPath("$.tenCent").value(0))
 				.andExpect(MockMvcResultMatchers.jsonPath("$.fiveCent").value(0))
 				.andExpect(MockMvcResultMatchers.jsonPath("$.oneCent").value(0));

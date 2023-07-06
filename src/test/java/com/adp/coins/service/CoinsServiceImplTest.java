@@ -184,5 +184,47 @@ public class CoinsServiceImplTest {
 		assertEquals(Long.valueOf(0), coinChange.getOneCent());
 		
 	}
+	
+	/**
+	 * Gets the all coin change if value is high then throw exception.
+	 *
+	 * @return the all coin change if value is high then throw exception
+	 */
+	@Test
+	void getAllCoinChange_ifValue_isHigh_Then_Throw_Exception() {
+		
+		Mockito.when(coinsConfig.getTotal()).thenReturn(1.00);
+		CoinsException coinsException = Assertions.assertThrows(CoinsException.class, () -> {			
+			serviceImpl.getAllCoinChange(CurrencyType.HUNDRED);
+		});
+		assertNotNull(coinsException);
+		assertEquals("Machine does not have enough coins", coinsException.getMessage());
+	}
+	
+	/**
+	 * Gets the all coin change if value is valid then expect success response.
+	 *
+	 * @return the all coin change if value is valid then expect success response
+	 */
+	@Test
+	void getAllCoinChange_ifValue_isValid_Then_Expect_success_response() {
+		
+		Mockito.when(coinsConfig.getTotal()).thenReturn(40.00);
+		Map<String, AtomicLong> coins = new HashMap<>();
+		coins.put(CoinsType.ONECENT.getName(), new AtomicLong(100));
+		coins.put(CoinsType.FIVECENT.getName(), new AtomicLong(100));
+		coins.put(CoinsType.TENCENT.getName(), new AtomicLong(100));
+		coins.put(CoinsType.QUARTERCENT.getName(), new AtomicLong(100));
+		Mockito.when(coinsConfig.getCoins()).thenReturn(coins); 
+		
+		CoinsResponse coinChange = serviceImpl.getAllCoinChange(CurrencyType.TWENTY);
+		assertNotNull(coinChange);
+		assertEquals(Long.valueOf(47), coinChange.getQuarterCent());
+		assertEquals(Long.valueOf(48), coinChange.getTenCent());
+		assertEquals(Long.valueOf(49), coinChange.getFiveCent());
+		assertEquals(Long.valueOf(100), coinChange.getOneCent());
+		
+	}
+	
 
 }

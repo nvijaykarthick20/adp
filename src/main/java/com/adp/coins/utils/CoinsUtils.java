@@ -1,6 +1,8 @@
 package com.adp.coins.utils;
 
 import java.math.BigDecimal;
+import java.text.DecimalFormat;
+import java.text.ParseException;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -10,7 +12,6 @@ import com.adp.coins.constants.CoinsType;
 import com.adp.coins.response.CoinsResponse;
 
 import lombok.extern.slf4j.Slf4j;
-
 
 /**
  * The Utility Class CoinsUtils to handle coins functionalities
@@ -74,18 +75,17 @@ public final class CoinsUtils {
 		log.info("Coins Response has been retrieved successfully for coinType : {}", coinType.getName());
 		return resp;
 	}
-	
-	
 
 	/**
 	 * Gets the cent count.
 	 *
-	 * @param coinsMap the coins map
+	 * @param coinsMap        the coins map
 	 * @param currencyDecimal the currency decimal
-	 * @param coinType the coin type
+	 * @param coinType        the coin type
 	 * @return the cent count
 	 */
-	public static ImmutablePair<Long, BigDecimal> getCentCount(Map<String, AtomicLong> coinsMap, BigDecimal currencyDecimal, CoinsType coinType) {
+	public static ImmutablePair<Long, BigDecimal> getCentCount(Map<String, AtomicLong> coinsMap,
+			BigDecimal currencyDecimal, CoinsType coinType) {
 		Long centCount = 0L;
 		AtomicLong centAtomicLong = coinsMap.get(coinType.getName());
 		log.info("CoinType: {} and its cent: {}", coinType.getName(), centAtomicLong);
@@ -95,6 +95,41 @@ public final class CoinsUtils {
 			centCount++;
 		}
 		ImmutablePair<Long, BigDecimal> pair = new ImmutablePair<>(centCount, currencyDecimal);
+		log.info("Cent Count has been calculated successfully");
+		return pair;
+	}
+
+	/**
+	 * Gets the all cent count.
+	 *
+	 * @param coinsMap the coins map
+	 * @param currencyDecimal the currency decimal
+	 * @param coinType the coin type
+	 * @return the all cent count
+	 */
+	public static ImmutablePair<Long, Double> getAllCentCount(Map<String, AtomicLong> coinsMap, Double currencyDecimal,
+			CoinsType coinType) {
+		Long centCount = 0L;
+		AtomicLong centAtomicLong = coinsMap.get(coinType.getName());
+		log.info("CoinType: {} and its cent: {}", coinType.getName(), centAtomicLong);
+		if (centAtomicLong.get() > 0 && currencyDecimal.doubleValue() > 0
+				&& (currencyDecimal.doubleValue() - coinType.getCent()) >= 0) {
+			DecimalFormat df = new DecimalFormat("0.00");
+			String formate = df.format(currencyDecimal.doubleValue() - coinType.getCent());
+			try {
+				if (formate.endsWith(".00")) {
+					currencyDecimal = Long.valueOf(formate.replace(".00", "")).doubleValue();
+				} else {
+					currencyDecimal = (Double) df.parse(formate);
+				}
+				centAtomicLong.decrementAndGet();
+				centCount++;
+			} catch (ParseException e) {
+				e.printStackTrace();
+			}
+
+		}
+		ImmutablePair<Long, Double> pair = new ImmutablePair<>(centCount, currencyDecimal);
 		log.info("Cent Count has been calculated successfully");
 		return pair;
 	}

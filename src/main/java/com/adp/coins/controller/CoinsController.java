@@ -70,5 +70,18 @@ public class CoinsController {
 		return ResponseEntity.ok(response);
 	}
 	
+	/**
+	 * Gets the all coin change.
+	 *
+	 * @param currency the currency
+	 * @return the all coin change
+	 */
+	@PostMapping(value = "/{currency}/mix", produces = MediaType.APPLICATION_JSON_VALUE)
+	public ResponseEntity<CoinsResponse> getAllCoinChange(@PathVariable Integer currency){
+		CurrencyType currencyType = CurrencyType.getByCurrency(currency);
+		CoinsResponse response = coinsService.getAllCoinChange(currencyType);
+		return ResponseEntity.ok(response);
+	}
+	
 
 }

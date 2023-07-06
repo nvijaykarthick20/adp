@@ -32,4 +32,12 @@ public interface CoinsService {
 	 */
 	CoinsResponse getCoinChange(CurrencyType currencyType);
 
+	/**
+	 * Gets the all coin change.
+	 *
+	 * @param currencyType the currency type
+	 * @return the all coin change
+	 */
+	CoinsResponse getAllCoinChange(CurrencyType currencyType);
+
 }

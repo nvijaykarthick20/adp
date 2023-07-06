@@ -20,7 +20,6 @@ import com.adp.coins.utils.CoinsUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
-
 /**
  * The Service Class CoinsServiceImpl to handle all coins functionality
  */
@@ -81,26 +80,75 @@ public class CoinsServiceImpl implements CoinsService {
 			throw new CoinsException(CoinsConstants.ERR_MSG_1);
 		}
 
-		ImmutablePair<Long, BigDecimal> quarterCentCount = CoinsUtils.getCentCount(coinsConfig.getCoins(), currencyDecimal,
-				CoinsType.QUARTERCENT);
+		ImmutablePair<Long, BigDecimal> quarterCentCount = CoinsUtils.getCentCount(coinsConfig.getCoins(),
+				currencyDecimal, CoinsType.QUARTERCENT);
 		resp.setQuarterCent(quarterCentCount.getLeft());
 		currencyDecimal = quarterCentCount.getRight();
 		log.info("Currency changed to quarter cent coins successfully");
 
-		ImmutablePair<Long, BigDecimal> tenCentCount = CoinsUtils.getCentCount(coinsConfig.getCoins(), currencyDecimal, CoinsType.TENCENT);
+		ImmutablePair<Long, BigDecimal> tenCentCount = CoinsUtils.getCentCount(coinsConfig.getCoins(), currencyDecimal,
+				CoinsType.TENCENT);
 		resp.setTenCent(tenCentCount.getLeft());
 		currencyDecimal = tenCentCount.getRight();
 		log.info("Currency changed to ten cent coins successfully");
 
-		ImmutablePair<Long, BigDecimal> fiveCentCount = CoinsUtils.getCentCount(coinsConfig.getCoins(), currencyDecimal, CoinsType.FIVECENT);
+		ImmutablePair<Long, BigDecimal> fiveCentCount = CoinsUtils.getCentCount(coinsConfig.getCoins(), currencyDecimal,
+				CoinsType.FIVECENT);
 		resp.setFiveCent(fiveCentCount.getLeft());
 		currencyDecimal = fiveCentCount.getRight();
 		log.info("Currency changed to five cent coins successfully");
 
-		ImmutablePair<Long, BigDecimal> oneCentCount = CoinsUtils.getCentCount(coinsConfig.getCoins(), currencyDecimal, CoinsType.ONECENT);
+		ImmutablePair<Long, BigDecimal> oneCentCount = CoinsUtils.getCentCount(coinsConfig.getCoins(), currencyDecimal,
+				CoinsType.ONECENT);
 		resp.setOneCent(oneCentCount.getLeft());
 		currencyDecimal = oneCentCount.getRight();
 		log.info("Currency changed to one cent coins successfully");
+
+		return resp;
+	}
+
+	/**
+	 * Gets the all coin change.
+	 *
+	 * @param currencyType the currency type
+	 * @return the all coin change
+	 */
+	@Override
+	public CoinsResponse getAllCoinChange(CurrencyType currencyType) {
+		CoinsResponse resp = new CoinsResponse();
+		Double currencyDecimal = Double.valueOf(currencyType.getCurrency());
+		Double total = coinsConfig.getTotal();
+		log.info("Available coins: {}", total);
+		if (currencyDecimal.doubleValue() > total) {
+			throw new CoinsException(CoinsConstants.ERR_MSG_1);
+		}
+
+		while (currencyDecimal.doubleValue() > 0) {
+			ImmutablePair<Long, Double> quarterCentCount = CoinsUtils.getAllCentCount(coinsConfig.getCoins(),
+					currencyDecimal, CoinsType.QUARTERCENT);
+			resp.setQuarterCent(
+					(resp.getQuarterCent() == null ? 0 : resp.getQuarterCent()) + quarterCentCount.getLeft());
+			currencyDecimal = quarterCentCount.getRight();
+
+			ImmutablePair<Long, Double> tenCentCount = CoinsUtils.getAllCentCount(coinsConfig.getCoins(),
+					currencyDecimal, CoinsType.TENCENT);
+			resp.setTenCent((resp.getTenCent() == null ? 0 : resp.getTenCent()) + tenCentCount.getLeft());
+			currencyDecimal = tenCentCount.getRight();
+			log.info("Currency changed to ten cent coins successfully");
+
+			ImmutablePair<Long, Double> fiveCentCount = CoinsUtils.getAllCentCount(coinsConfig.getCoins(),
+					currencyDecimal, CoinsType.FIVECENT);
+			resp.setFiveCent((resp.getFiveCent() == null ? 0 : resp.getFiveCent()) + fiveCentCount.getLeft());
+			currencyDecimal = fiveCentCount.getRight();
+			log.info("Currency changed to five cent coins successfully");
+			for (int i = 0; i < 5; i++) {
+				ImmutablePair<Long, Double> oneCentCount = CoinsUtils.getAllCentCount(coinsConfig.getCoins(),
+						currencyDecimal, CoinsType.ONECENT);
+				resp.setOneCent((resp.getOneCent() == null ? 0 : resp.getOneCent()) + oneCentCount.getLeft());
+				currencyDecimal = oneCentCount.getRight();
+			}
+			log.info("Currency changed to one cent coins successfully");
+		}
 
 		return resp;
 	}
