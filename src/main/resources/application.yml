@@ -1,3 +1,8 @@
 server:
   servlet:
     context-path: /coins
+  coins:
+    onecent: 100
+    fivecent: 100
+    tencent: 100
+    quartercent: 100 
