@@ -1,8 +1,11 @@
 package com.adp.coins.service.impl;
 
+import java.math.BigDecimal;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicLong;
 
+import org.apache.commons.lang3.tuple.ImmutablePair;
+import org.slf4j.MDC;
 import org.springframework.stereotype.Service;
 
 import com.adp.coins.config.CoinsPropConfig;
@@ -16,12 +19,28 @@ import com.adp.coins.utils.CoinsUtils;
 
 import lombok.RequiredArgsConstructor;
 
+
+/**
+ * The Service Class CoinsServiceImpl to handle all coins functionality
+ */
 @Service
+
+/**
+ * Instantiates a new coins service impl.
+ *
+ * @param coinsConfig the coins config
+ */
 @RequiredArgsConstructor
 public class CoinsServiceImpl implements CoinsService {
 
+	/** The coins config. */
 	private final CoinsPropConfig coinsConfig;
 
+	/**
+	 * Gets the all coins.
+	 *
+	 * @return the all coins
+	 */
 	@Override
 	public CoinsResponse getAllCoins() {
 		Map<String, AtomicLong> coinsMap = coinsConfig.getCoins();
@@ -29,6 +48,12 @@ public class CoinsServiceImpl implements CoinsService {
 		return response;
 	}
 
+	/**
+	 * Gets the coin.
+	 *
+	 * @param coinType the coin type
+	 * @return the coin
+	 */
 	@Override
 	public CoinsResponse getCoin(CoinsType coinType) {
 		Map<String, AtomicLong> coinsMap = coinsConfig.getCoins();
@@ -36,13 +61,38 @@ public class CoinsServiceImpl implements CoinsService {
 		return response;
 	}
 
+	/**
+	 * Gets the coin change.
+	 *
+	 * @param currencyType the currency type
+	 * @return the coin change
+	 */
 	@Override
 	public CoinsResponse getCoinChange(CurrencyType currencyType) {
-		Integer currency = currencyType.getCurrency();
-		if(currency > coinsConfig.getTotal()) {
+		CoinsResponse resp = new CoinsResponse();
+		BigDecimal currencyDecimal = new BigDecimal(currencyType.getCurrency());
+		if (currencyDecimal.doubleValue() > coinsConfig.getTotal()) {
 			throw new CoinsException(CoinsConstants.ERR_MSG_1);
 		}
-		return null;
+
+		ImmutablePair<Long, BigDecimal> quarterCentCount = CoinsUtils.getCentCount(coinsConfig.getCoins(), currencyDecimal,
+				CoinsType.QUARTERCENT);
+		resp.setQuarterCent(quarterCentCount.getLeft());
+		currencyDecimal = quarterCentCount.getRight();
+
+		ImmutablePair<Long, BigDecimal> tenCentCount = CoinsUtils.getCentCount(coinsConfig.getCoins(), currencyDecimal, CoinsType.TENCENT);
+		resp.setTenCent(tenCentCount.getLeft());
+		currencyDecimal = tenCentCount.getRight();
+
+		ImmutablePair<Long, BigDecimal> fiveCentCount = CoinsUtils.getCentCount(coinsConfig.getCoins(), currencyDecimal, CoinsType.FIVECENT);
+		resp.setFiveCent(fiveCentCount.getLeft());
+		currencyDecimal = fiveCentCount.getRight();
+
+		ImmutablePair<Long, BigDecimal> oneCentCount = CoinsUtils.getCentCount(coinsConfig.getCoins(), currencyDecimal, CoinsType.ONECENT);
+		resp.setOneCent(oneCentCount.getLeft());
+		currencyDecimal = oneCentCount.getRight();
+
+		return resp;
 	}
 
 }

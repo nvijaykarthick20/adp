@@ -13,18 +13,36 @@ import com.adp.coins.constants.CoinsType;
 
 import lombok.Getter;
 
+/**
+ * The Class CoinsPropConfig.
+ */
 @Component
 @ConfigurationProperties(prefix = "server")
 public class CoinsPropConfig {
 
+	/**
+	 * Gets the coins.
+	 *
+	 * @return the coins
+	 */
 	@Getter
 	private Map<String, AtomicLong> coins;
 
+	/**
+	 * Sets the coins.
+	 *
+	 * @param coins the coins
+	 */
 	public void setCoins(Map<String, Long> coins) {
 		this.coins = coins.entrySet().stream()
 				.collect(Collectors.toMap(Map.Entry::getKey, e -> new AtomicLong(e.getValue())));
 	}
 
+	/**
+	 * Gets the total.
+	 *
+	 * @return the total
+	 */
 	public Double getTotal() {
 		Double total = 0.00;
 		for (Map.Entry<String, AtomicLong> keyVal : coins.entrySet()) {
@@ -35,11 +53,5 @@ public class CoinsPropConfig {
 		
 		return total;
 	}
-	
-	
-	public static int add(int a, int b) {
-        return a + b;
-    }
-	
 
 }

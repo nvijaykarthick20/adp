@@ -14,18 +14,41 @@ import com.adp.coins.service.CoinsService;
 
 import lombok.RequiredArgsConstructor;
 
+/**
+ * API Restcontroller to handle coins functionality
+ */
 @RestController
+
+/**
+ * Instantiates a new coins controller.
+ *
+ * @param coinsService the coins service
+ */
 @RequiredArgsConstructor
 public class CoinsController {
 
+	/** The coins service. */
 	private final CoinsService coinsService;
 
+	/**
+	 * API end point to get all coins details
+	 * Gets the coins.
+	 *
+	 * @return the coins
+	 */
 	@GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<CoinsResponse> getCoins() {
 		CoinsResponse response = coinsService.getAllCoins();
 		return ResponseEntity.ok(response);
 	}
 	
+	/**
+	 * API end point to get coins details by coin type
+	 * Gets the coin.
+	 *
+	 * @param coin the coin
+	 * @return the coin
+	 */
 	@GetMapping(value = "/{coin}", produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<CoinsResponse> getCoin(@PathVariable String coin) {
 		CoinsType coinType = CoinsType.getByName(coin) ;
@@ -33,6 +56,13 @@ public class CoinsController {
 		return ResponseEntity.ok(response);
 	}
 	
+	/**
+	 * API end point to get the coin change for the given currency
+	 * Gets the coin change.
+	 *
+	 * @param currency the currency
+	 * @return the coin change
+	 */
 	@PostMapping(value = "/{currency}", produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<CoinsResponse> getCoinChange(@PathVariable Integer currency){
 		CurrencyType currencyType = CurrencyType.getByCurrency(currency);
